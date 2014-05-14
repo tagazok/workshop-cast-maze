@@ -1,4 +1,5 @@
-window.debug = false;
+window.debug = true;
+
 
 function checkDebug() {
     if (window.debug) {
@@ -12,9 +13,13 @@ function checkDebug() {
 
 $(document).ready(function () {
 
+
+    cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.NONE);
     // TODO log level
 
-    window.castReceiverManager = {}; // TODO get CastReceiverManager
+    // window.castReceiverManager = {}; // TODO get CastReceiverManager
+    window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
+    window.castReceiverManager.start()
     log('Starting receiver manager');
 
     window.castReceiverManager.onReady = function (event) {
@@ -22,13 +27,16 @@ $(document).ready(function () {
         window.castReceiverManager.setApplicationState("Application status is ready...");
     };
 
-    window.messageBus = {} // TODO get CastMessageBus
+    // window.messageBus = {} // TODO get CastMessageBus
+    window.messageBus = window.castReceiverManager.getCastMessageBus();
 
     /**
      * When sender connected
      */
     // TODO onSenderConnected call addPlayer(<id>)
-
+    window.castReceiverManager.onSenderConnected = function(event) {
+        addPlayer(event.senderId);
+    }
     /**
      * When sender disconnect
      * @param event
@@ -47,6 +55,7 @@ $(document).ready(function () {
      */
     window.messageBus.onMessage = function (event) {
         log('Message [' + event.senderId + '] ' + event.data);
+        handleKeypress(event.message, event.id);
         // TODO call method to move player with direction
     };
 
